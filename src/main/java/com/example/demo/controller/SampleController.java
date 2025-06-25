@@ -8,5 +8,4 @@ public class SampleController {
 	public String view() {
 		return null;
 	}
-
 }
