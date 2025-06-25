@@ -4,5 +4,9 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 public class SampleController {
+	
+	public String view() {
+		return null;
+	}
 
 }
