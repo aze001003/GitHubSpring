@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>タイムライン</title>
+</head>
+<body>
+<h2>タイムライン</h2>
+<form th:action="@{/post}" method="post">
+    <textarea name="content" maxlength="250" required></textarea>
+    <button type="submit">投稿</button>
+</form>
+<ul>
+    <li th:each="post : ${posts}">
+        <a th:href="@{/user/{id}(id=${post.user.id})}" th:text="${post.user.userName}"></a>：
+        <span th:text="${post.content}"></span>
+        <span th:text="${#dates.format(post.createdAt, 'yyyy/MM/dd HH:mm')}"></span>
+        <a th:href="@{/post/{id}(id=${post.id})}">詳細</a>
+    </li>
+</ul>
+<a th:href="@{/logout}">ログアウト</a>
+</body>
+</html>

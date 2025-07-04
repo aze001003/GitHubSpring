@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>プロフィール</title>
+</head>
+<body>
+<h2 th:text="${user.userName} + 'さんのプロフィール'"></h2>
+<p>
+    ログインID: <span th:text="${user.loginId}"></span><br>
+    メール: <span th:text="${user.email}"></span><br>
+    自己紹介: <span th:text="${user.userBio}"></span><br>
+    フォロー: <a th:href="@{/user/{id}/follows(id=${user.id})}" th:text="${user.followCount}"></a>
+    フォロワー: <a th:href="@{/user/{id}/followers(id=${user.id})}" th:text="${user.followerCount}"></a>
+</p>
+<form th:action="@{/user/{id}/follow(id=${user.id})}" method="post" th:if="${!user.followedByCurrentUser}">
+    <button type="submit">フォロー</button>
+</form>
+<form th:action="@{/user/{id}/unfollow(id=${user.id})}" method="post" th:if="${user.followedByCurrentUser}">
+    <button type="submit">フォロー解除</button>
+</form>
+<h3>投稿一覧</h3>
+<ul>
+    <li th:each="post : ${user.posts}">
+        <a th:href="@{/post/{id}(id=${post.id})}" th:text="${post.content}"></a>
+        <span th:text="${#dates.format(post.createdAt, 'yyyy/MM/dd HH:mm')}"></span>
+    </li>
+</ul>
+<h3>いいねした投稿一覧</h3>
+<ul>
+    <li th:each="post : ${user.likedPosts}">
+        <a th:href="@{/post/{id}(id=${post.id})}" th:text="${post.content}"></a>
+    </li>
+</ul>
+<a th:href="@{/}">タイムラインへ戻る</a>
+</body>
+</html>

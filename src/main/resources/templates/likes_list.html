@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>いいねしたユーザー一覧</title>
+</head>
+<body>
+<h2>いいねしたユーザー一覧</h2>
+<ul>
+    <li th:each="user : ${users}">
+        <a th:href="@{/user/{id}(id=${user.id})}" th:text="${user.userName}"></a>
+    </li>
+</ul>
+<a th:href="@{/post/{id}(id=${post.id})}">投稿詳細へ戻る</a>
+</body>
+</html>

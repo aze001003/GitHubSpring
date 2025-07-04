@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>投稿詳細</title>
+</head>
+<body>
+<h2>投稿詳細</h2>
+<p>
+    投稿者: <a th:href="@{/user/{id}(id=${post.user.id})}" th:text="${post.user.userName}"></a><br>
+    本文: <span th:text="${post.content}"></span><br>
+    投稿日: <span th:text="${#dates.format(post.createdAt, 'yyyy/MM/dd HH:mm')}"></span>
+</p>
+<p>
+    <span>いいね数: </span>
+    <a th:href="@{/post/{id}/likes(id=${post.id})}" th:text="${post.likeCount}"></a>
+    <form th:action="@{/post/{id}/like(id=${post.id})}" method="post" style="display:inline;">
+        <button type="submit" th:if="${!post.likedByCurrentUser}">いいね</button>
+        <button type="submit" th:if="${post.likedByCurrentUser}">いいね解除</button>
+    </form>
+</p>
+<h3>コメント</h3>
+<ul>
+    <li th:each="comment : ${post.comments}">
+        <a th:href="@{/user/{id}(id=${comment.user.id})}" th:text="${comment.user.userName}"></a>：
+        <span th:text="${comment.content}"></span>
+        <span th:text="${#dates.format(comment.createdAt, 'yyyy/MM/dd HH:mm')}"></span>
+    </li>
+</ul>
+<form th:action="@{/post/{id}/comment(id=${post.id})}" method="post">
+    <textarea name="content" maxlength="250" required></textarea>
+    <button type="submit">コメントする</button>
+</form>
+<a th:href="@{/}">タイムラインへ戻る</a>
+</body>
+</html>
