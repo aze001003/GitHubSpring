@@ -31,11 +31,7 @@
         <label for="passwordConfirm">パスワード（確認）:</label><br />
         <input type="password" id="passwordConfirm" name="passwordConfirm" required autocomplete="off" /><br />
         <div th:if="${passwordConfirmError != null}" th:text="${passwordConfirmError}"></div>
-
-        <label for="userBio">自己紹介:</label><br />
-        <textarea id="userBio" th:field="*{userBio}"></textarea><br />
-        <div th:if="${#fields.hasErrors('userBio')}" th:errors="*{userBio}"></div>
-
+		
         <button type="submit">登録</button>
     </form>
 

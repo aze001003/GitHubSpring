@@ -29,7 +29,10 @@
       <ul>
         <li th:each="post : ${posts}">
           <article>
-            <p><strong th:text="${post.userName}">ユーザー名</strong></p>
+			<p>
+			  <strong th:text="${post.userName}">ユーザー名</strong>
+			  <span style="color: gray;" th:text="'@' + ${post.loginId} + ''">@loginId</span>
+			</p>
             <p th:text="${post.content}">投稿内容</p>
             <time th:text="${post.relativeTime}">○分前</time>
           </article>

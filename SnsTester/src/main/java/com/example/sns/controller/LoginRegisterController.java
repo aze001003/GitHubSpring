@@ -17,7 +17,7 @@ import com.example.sns.dto.RegisterRequest;
 import com.example.sns.entity.Users;
 import com.example.sns.service.AuthenticationService;
 import com.example.sns.service.UsersService;
-import com.example.sns.util.LoginIdGenerator;
+import com.example.sns.util.LoginIdGeneratUtil;
 
 
 
@@ -104,7 +104,7 @@ public class LoginRegisterController {
 			return "register";
 }
 		try {
-			String loginId = LoginIdGenerator.generateLoginIdFromEmail(form.getEmail());
+			String loginId = LoginIdGeneratUtil.generateLoginIdFromEmail(form.getEmail());
 	        Users user = usersService.registerUser(
 	                form.getEmail(),
 	                loginId,

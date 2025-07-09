@@ -23,4 +23,5 @@ public class PostViewDto {
     private String content;
     private String relativeTime; // ← 相対時間（「5分前」など）
     private String userName;
+    private String loginId;      // ログインID（@付きで表示）
 }

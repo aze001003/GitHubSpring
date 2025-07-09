@@ -15,8 +15,8 @@ import com.example.sns.dto.PostViewDto;
 import com.example.sns.entity.Posts;
 import com.example.sns.entity.Users;
 import com.example.sns.helper.LoginUserHelper;
-import com.example.sns.helper.TimeAgoHelper;
 import com.example.sns.service.PostsService;
+import com.example.sns.util.RelativeTimeUtil;
 /**
 * ホーム画面（投稿一覧＋投稿作成）を制御するコントローラークラス。
 * セッションからログインユーザーを取得し、投稿一覧の取得と新規投稿作成を行う。
@@ -85,8 +85,9 @@ public class PostsController {
 				.map(post -> new PostViewDto(
 						post.getPostId(),
 						post.getContent(),
-						TimeAgoHelper.toRelativeTime(post.getCreatedAt()),
-						post.getUser().getUserName()
+						RelativeTimeUtil.toRelativeTime(post.getCreatedAt()),
+						post.getUser().getUserName(),
+						post.getUser().getLoginId()
 						))
 				.collect(Collectors.toList());
 	}
