@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>ホーム画面 - グループワークA</title>
+</head>
+<body>
+
+  <p><a th:href="@{/users/logout}">ログアウト</a></p>
+
+  <hr/>
+
+  <!-- 新規投稿フォーム -->
+  <section th:if="${user != null}">
+    <h2>新規投稿</h2>
+    <form th:action="@{/users/home/posts/create}" method="post">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+      <textarea name="content" rows="4" cols="50" placeholder="いまどうしてる？" required></textarea><br/>
+      <button type="submit">投稿</button>
+    </form>
+  </section>
+
+  <hr/>
+
+  <!-- 投稿一覧 -->
+  <section>
+    <h2>投稿一覧</h2>
+    <div th:if="${posts != null and !posts.isEmpty()}">
+      <ul>
+        <li th:each="post : ${posts}">
+          <article>
+            <p><strong th:text="${post.userName}">ユーザー名</strong></p>
+            <p th:text="${post.content}">投稿内容</p>
+            <time th:text="${post.relativeTime}">○分前</time>
+          </article>
+          <hr/>
+        </li>
+      </ul>
+    </div>
+    <div th:if="${posts == null or posts.isEmpty()}">
+      <p>投稿がありません。</p>
+    </div>
+  </section>
+
+</body>
+</html>

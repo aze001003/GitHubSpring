@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>新規登録</title>
+    <meta charset="UTF-8" />
+</head>
+<body>
+    <h1>ユーザー登録</h1>
+
+    <!-- 共通エラーメッセージ -->
+    <div th:if="${errorMessage}" style="color: red;">
+        <p th:text="${errorMessage}"></p>
+    </div>
+
+    <!-- DTOと連携（registerRequestというModelAttributeがControllerで指定されている前提） -->
+    <form th:action="@{/users/register}" th:object="${registerRequest}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+        <label for="email">メールアドレス:</label><br />
+        <input type="email" id="email" th:field="*{email}" required /><br />
+        <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+
+        <label for="userName">ユーザー名:</label><br />
+        <input type="text" id="userName" th:field="*{userName}" required /><br />
+        <div th:if="${#fields.hasErrors('userName')}" th:errors="*{userName}"></div>
+
+        <label for="password">パスワード:</label><br />
+        <input type="password" id="password" th:field="*{password}" required autocomplete="off" /><br />
+        <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+
+        <label for="passwordConfirm">パスワード（確認）:</label><br />
+        <input type="password" id="passwordConfirm" name="passwordConfirm" required autocomplete="off" /><br />
+        <div th:if="${passwordConfirmError != null}" th:text="${passwordConfirmError}"></div>
+
+        <label for="userBio">自己紹介:</label><br />
+        <textarea id="userBio" th:field="*{userBio}"></textarea><br />
+        <div th:if="${#fields.hasErrors('userBio')}" th:errors="*{userBio}"></div>
+
+        <button type="submit">登録</button>
+    </form>
+
+    <p>すでにアカウントをお持ちの方は <a th:href="@{/users/login}">ログイン画面</a> へ</p>
+</body>
+</html>
