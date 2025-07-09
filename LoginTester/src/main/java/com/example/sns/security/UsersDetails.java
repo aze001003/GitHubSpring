@@ -30,64 +30,46 @@ public class UsersDetails implements UserDetails {
 		this.user = user;
 		this.usernameForAuth = usernameForAuth;
 	}
-	/**
-	 * ユーザーIDの取得（アプリ内で必要な場合に利用）
-	 */
+	/** ユーザーIDの取得（アプリ内で必要な場合に利用） */
 	public UUID getUserId() {
 		return user.getUserId();
 	}
-	/**
-	 * 権限情報を返却（固定でROLE_USERを付与）
-	 */
+	/** 権限情報を返却（固定でROLE_USERを付与） */
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
 	}
-	/**
-	 * ハッシュ化されたパスワードを返却
-	 */
+	/** ハッシュ化されたパスワードを返却 */
 	@Override
 	public String getPassword() {
 		return user.getPassword();
 	}
-	/**
-	 * 認証に使用されたユーザー名（ログインIDまたはメールアドレス）を返却
-	 */
+	/** 認証に使用されたユーザー名（ログインIDまたはメールアドレス）を返却 */
 	@Override
 	public String getUsername() {
 		return usernameForAuth;  // ログインID or email（入力値）をそのまま返す
 	}
-	/**
-	 * アカウントの有効期限チェック（常にtrueで有効）
-	 */
+	/** アカウントの有効期限チェック（常にtrueで有効） */
 	@Override
 	public boolean isAccountNonExpired() {
 		return true;
 	}
-	/**
-	 * アカウントのロック状態チェック（常にtrueでロックされていない）
-	 */
+	/** アカウントのロック状態チェック（常にtrueでロックされていない） */
 	@Override
 	public boolean isAccountNonLocked() {
 		return true;
 	}
-	/**
-	 * 資格情報（パスワード）の有効期限チェック（常にtrueで有効）
-	 */
+	/** 資格情報（パスワード）の有効期限チェック（常にtrueで有効) */
 	@Override
 	public boolean isCredentialsNonExpired() {
 		return true;
 	}
-	/**
-	 * アカウントが有効かどうか（常にtrueで有効
-	 * */
+	/** アカウントが有効かどうか（常にtrueで有効 */
 	@Override
 	public boolean isEnabled() {
 		return true;
 	}
-	/** 
-	 * 認証後にアプリ内でUsersエンティティを使いたい場合のゲッター
-	 */
+	/** 認証後にアプリ内でUsersエンティティを使いたい場合のゲッター */
 	public Users getUser() {
 		return user;
 	}

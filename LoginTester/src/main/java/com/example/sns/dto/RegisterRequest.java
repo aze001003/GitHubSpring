@@ -27,14 +27,6 @@ public class RegisterRequest {
 	@Size(message     = "メールアドレスは50文字以内で入力してください", max = 50)
 	private String email;
 	/**
-	 * ログインID
-	 * -必須入力
-	 * -4～50文字まで（適宜調整可）
-	 */
-	@NotBlank(message = "ログインIDは必須です")
-	@Size(message     = "ログインIDは4文字以上50文字以内で入力してください", min = 4, max = 50)
-	private String loginId;
-	/**
 	 * ユーザー名
 	 * -必須入力
 	 * -最大20文字まで（DBのVARCHAR(20)に合わせる）
@@ -51,6 +43,12 @@ public class RegisterRequest {
 	@NotBlank(message = "パスワードは必須です")
 	@Size(message     = "パスワードは6文字以上100文字以内で入力してください", min = 6, max = 100)
 	private String password;
+	/**
+	 * 確認用パスワード（フォーム入力のみでDTOに保持）
+	 * バリデーションアノテーションは不要で、
+	 * コントローラーやバリデータでのチェック対象とする
+	 */
+	private String passwordConfirm;
 	/**
 	 * 自己紹介
 	 * -任意入力

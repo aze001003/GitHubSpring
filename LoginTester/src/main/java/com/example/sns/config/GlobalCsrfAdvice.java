@@ -25,8 +25,6 @@ public class GlobalCsrfAdvice {
 	@ModelAttribute
 	public void addCsrfToken(Model model, HttpServletRequest request) {
 		CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-		if (token != null) {
-			model.addAttribute("_csrf", token);
-		}
+		if (token != null) model.addAttribute("_csrf", token);
 	}
 }

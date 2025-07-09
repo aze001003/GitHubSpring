@@ -2,21 +2,23 @@ package com.example.sns.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.sns.dto.RegisterRequest;
 import com.example.sns.entity.Users;
-import com.example.sns.security.UsersDetails;
+import com.example.sns.helper.LoginUserHelper;
+import com.example.sns.service.AuthenticationService;
 import com.example.sns.service.UsersService;
+import com.example.sns.util.LoginIdGenerator;
 
 /**
  * ユーザーのログイン、登録、ホーム画面表示、ログアウトを制御するコントローラークラス。
@@ -29,13 +31,21 @@ import com.example.sns.service.UsersService;
 @RequestMapping("/users")
 public class LoginRegisterController {
 	private final UsersService usersService;
+	private final AuthenticationService authenticationService;
 	
-	public LoginRegisterController(UsersService usersService) {
+	public LoginRegisterController(UsersService usersService, AuthenticationService authenticationService) {
 		this.usersService = usersService;
+		this.authenticationService = authenticationService;
 	}
 	/**
 	 * ログイン画面の表示処理（GET）
 	 * - エラーまたはログアウト状態に応じたメッセージを表示。
+	 * 
+	 * @param error ログイン失敗時に付加されるパラメータ（任意）
+	 * @param logout ログアウト時に付加されるパラメータ（任意）
+	 * @param model Viewにデータを渡すためのモデル
+	 * @param request HTTPリクエストオブジェクト
+	 * @return ログイン画面のテンプレート名（"login"）
 	 */
 	@GetMapping("/login")
 	public String loginForm(
@@ -43,94 +53,98 @@ public class LoginRegisterController {
 			@RequestParam(required = false) String logout,
 			Model model,
 			HttpServletRequest request) {
-		if (error != null) {
-			model.addAttribute("errorMessage", "ログインに失敗しました。IDかパスワードを確認してください。");
-		}
-		if (logout != null) {
-			model.addAttribute("logoutMessage", "ログアウトしました。");
-		}
+		if (error  != null) model.addAttribute("errorMessage", "ログインに失敗しました。IDかパスワードを確認してください。");
+		if (logout != null) model.addAttribute("logoutMessage", "ログアウトしました。");
 		return "login"; // templates/login.htmlを表示
 	}
 	/**
 	 * ユーザー登録画面の表示処理（GET）
+	 * @return 登録画面のテンプレート名（"register"）
 	 */
 	@GetMapping("/register")
-	public String registerForm() {
+	public String registerForm(Model model) {
+		model.addAttribute("registerRequest", new RegisterRequest());
 		return "register"; // templates/register.htmlを表示
 	}
 	/**
 	 * ユーザー登録処理（POST）
-	 * - パスワード確認欄と一致するかをチェック。
-	 * - メールアドレスからログインIDを自動生成。
-	 * - 登録成功時はセッションおよびSpring Securityへ認証情報を設定。
-	 * - 登録失敗時はエラーメッセージ付きで戻る。
+	 * - フォームから受け取ったパスワードと確認用パスワードの一致をチェックする。
+	 * - 一致しない場合はエラーメッセージをセットし、登録画面に戻る。
+	 * - 一致した場合は、UsersServiceを使ってユーザー登録を行う。
+	 * - 登録成功時は、登録したユーザー情報をセッションに保存し、
+	 *   AuthenticationHelperを用いてSpring Securityの認証情報を設定する。
+	 * - 登録処理中に例外が発生した場合はエラーメッセージをセットして登録画面に戻る。
+	 *
+	 * @param email ユーザーのメールアドレス
+	 * @param userName ユーザー名
+	 * @param password パスワード
+	 * @param passwordConfirm 確認用パスワード
+	 * @param userBio 任意の自己紹介文
+	 * @param session HTTPセッションオブジェクト
+	 * @param request HTTPリクエストオブジェクト
+	 * @param model Viewへデータを渡すためのモデル
+	 * @return 登録成功時はホーム画面へリダイレクト、失敗時は登録画面に戻る
 	 */
 	@PostMapping("/register")
 	public String registerSubmit(
-			@RequestParam String email,
-			@RequestParam String userName,
-			@RequestParam String password,
+			@Valid @ModelAttribute("registerRequest") RegisterRequest form,
+			BindingResult bindingResult,
 			@RequestParam String passwordConfirm,
-			@RequestParam(required = false) String userBio,
 			HttpSession session,
 			HttpServletRequest request,
 			Model model) {
-		// パスワード一致確認
-		if (!password.equals(passwordConfirm)) {
-			model.addAttribute("errorMessage", "パスワードが一致しません");
-			model.addAttribute("email", email);
-			model.addAttribute("userName", userName);
+		// バリデーションチェック
+		if (bindingResult.hasErrors()) {
 			return "register";
 		}
+		// パスワード一致確認
+		if (!form.getPassword().equals(passwordConfirm)) {
+			model.addAttribute("passwordConfirmError", "パスワードが一致しません");
+			return "register";
+}
 		try {
-			String loginId = email.split("@")[0];// ログインIDはメールアドレスの@より前
-			Users user = usersService.registerUser(email, loginId, userName, password, userBio);
-			session.setAttribute("loginUser", user);// セッションへユーザー情報を保存
-			// Spring Security 認証情報の構築
-			UsersDetails userDetails = new UsersDetails(user, loginId);
-			UsernamePasswordAuthenticationToken authToken =
-					new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-			SecurityContext context = SecurityContextHolder.createEmptyContext();
-			context.setAuthentication(authToken);
-			// 認証情報をSpring Securityにセット
-			SecurityContextHolder.setContext(context);
-			// 認証状態をセッションにも保存（自動ログイン状態を保持）
-			request.getSession(true).setAttribute(
-					HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-					context);
+			String loginId = LoginIdGenerator.generateLoginIdFromEmail(form.getEmail());
+	        Users user = usersService.registerUser(
+	                form.getEmail(),
+	                loginId,
+	                form.getUserName(),
+	                form.getPassword(),
+	                form.getUserBio());
+			authenticationService.loginUser(user, session, request);
 			return "redirect:/users/home";
 		} catch (Exception e) {
 			model.addAttribute("errorMessage", "登録に失敗しました: " + e.getMessage());
-			model.addAttribute("email", email);
-			model.addAttribute("userName", userName);
 			return "register";
 		}
 	}
 	/**
 	 * ホーム画面の表示処理（GET）
-	 * - 認証済みユーザーであればユーザー情報を表示。
-	 * - 未認証ならログイン画面へリダイレクト。
+	 * - 認証済みユーザーであれば、そのユーザー情報を画面に表示する。
+	 * - 未認証の場合はログイン画面へリダイレクトする。
+	 * 
+	 * @param session 現在のHTTPセッション
+	 * @param model Viewにユーザー情報を渡すためのモデル
+	 * @return ホーム画面のテンプレート名（"home"）またはログイン画面へのリダイレクト
 	 */
 	@GetMapping("/home")
 	public String home(HttpSession session, Model model) {
-		// 認証済みユーザーをSpring Securityから取得
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if (principal instanceof UsersDetails) {
-			UsersDetails userDetails = (UsersDetails) principal;
-			Users loginUser = userDetails.getUser();
-			model.addAttribute("user", loginUser);
-			return "home";  // templates/home.htmlを表示
-		} else {
+		Users loginUser = LoginUserHelper.getLoginUser();
+		if (loginUser == null) {
 			return "redirect:/users/login";
 		}
+		model.addAttribute("user", loginUser);
+		return "home";
 	}
 	/**
 	 * ログアウト処理（GET）
-	 * - セッションを無効化してログイン画面へ遷移。
+	 * - セッションを無効化とSpring Securityの認証情報をクリア
+	 * -ログイン画面にリダイレクトする。
+	 * @param session 現在のHTTPセッション（破棄対象）
+	 * @return ログアウト完了後にログイン画面へリダイレクト
 	 */
 	@GetMapping("/logout")
 	public String logout(HttpSession session) {
-		session.invalidate();
+		authenticationService.logoutUser(session);
 		return "redirect:/users/login?logout";
 	}
 }

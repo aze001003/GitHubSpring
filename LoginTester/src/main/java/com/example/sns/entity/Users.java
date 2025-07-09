@@ -88,7 +88,6 @@ public class Users {
 		createdAt = now;
 		updatedAt = now;
 	}
-
 	/**
 	 * エンティティ更新直前に呼び出される。
 	 * updatedAtを現在日時に更新。

@@ -26,6 +26,10 @@ public class SecurityConfig {
 	 * - それ以外のリクエストはすべて認証が必要
 	 * - カスタムログイン画面の利用とパラメータ名の指定
 	 * - ログアウト処理とリダイレクト先の指定
+	 * 
+	 * @param http Spring SecurityのHTTPセキュリティビルダー
+	 * @return 構成済みのSecurityFilterChainインスタンス
+	 * @throws Exception セキュリティ設定に失敗した場合にスローされる例外
 	 */
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -58,10 +62,10 @@ public class SecurityConfig {
 	}
 
 	/**
-	 * パスワードの暗号化方式を定義。
-	 * Spring Securityでは平文パスワードをそのまま保存せず、
-	 * BCryptハッシュで安全に管理します。
-	 * 登録・ログインの両方でこのエンコーダーを使用します。
+	 * パスワードのエンコード方式としてBCryptを使用するエンコーダーを定義。
+	 * 主にユーザー登録時とログイン時のパスワードチェックに使用される。
+	 * 
+	 * @return BCryptPasswordEncoderのインスタンス
 	 */
 	@Bean
 	public PasswordEncoder passwordEncoder() {
@@ -69,16 +73,17 @@ public class SecurityConfig {
 	}
 
 	/**
-	 * 認証プロバイダ（AuthenticationProvider）を定義。
-	 * DaoAuthenticationProvider は UserDetailsService を使用して
-	 * データベースからユーザー情報を取得し、認証を行います。
-	 * また、ここで使用するパスワードエンコーダー（BCrypt）も指定します。
+	 * データベースに基づいた認証を行うDaoAuthenticationProviderを定義。
+	 * UserDetailsServiceとPasswordEncoderを使用して認証処理を構成する。
+	 * 
+	 * @param userDetailsService 認証に使用するユーザー情報の取得サービス
+	 * @param passwordEncoder パスワードのハッシュ化および照合に使用するエンコーダー
+	 * @return 構成済みのDaoAuthenticationProvider
 	 */
 	@Bean
 	public DaoAuthenticationProvider authenticationProvider(
 			UserDetailsService userDetailsService,
 			PasswordEncoder passwordEncoder) {
-		
 		DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
 		authProvider.setPasswordEncoder(passwordEncoder);
 		return authProvider;

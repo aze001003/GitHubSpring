@@ -2,6 +2,8 @@ package com.example.sns.service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,16 +20,14 @@ import com.example.sns.repository.UsersRepository;
 public class UsersService {
 	private final UsersRepository usersRepository;
 	private final PasswordEncoder passwordEncoder;
+	private static final Logger logger = LoggerFactory.getLogger(UsersService.class);
 	/**
 	 * コンストラクタによる依存性注入。
 	 * 
 	 * @param usersRepository Usersエンティティに対するリポジトリ
 	 * @param passwordEncoder パスワードのハッシュ化に使用
 	 */
-	public UsersService(
-			UsersRepository usersRepository,
-			PasswordEncoder passwordEncoder
-			) {
+	public UsersService(UsersRepository usersRepository,PasswordEncoder passwordEncoder) {
 		this.usersRepository = usersRepository;
 		this.passwordEncoder = passwordEncoder;
 	}
@@ -38,7 +38,6 @@ public class UsersService {
 	 * パスワードをハッシュ化した上で新規ユーザーを登録します。
 	 *
 	 * @param email メールアドレス
-	 * @param loginId ログインID
 	 * @param userName ユーザー名
 	 * @param rawPassword 平文パスワード
 	 * @param userBio 自己紹介（任意）
@@ -50,8 +49,8 @@ public class UsersService {
 			String loginId,
 			String userName,
 			String rawPassword,
-			String userBio
-			) {
+			String userBio) {
+
 		if (usersRepository.existsByEmail(email)) {
 			throw new IllegalArgumentException("このメールアドレスはすでに登録されています");
 		}
@@ -70,7 +69,7 @@ public class UsersService {
 		user.setUpdatedAt(now);
 		
 		return usersRepository.save(user);
-}
+	}
 	/**
 	 * ログイン認証処理。
 	 * 入力されたログインIDまたはメールアドレスに一致するユーザーを検索し、
@@ -84,13 +83,12 @@ public class UsersService {
 		Optional<Users> userOpt =
 				usersRepository.findByLoginIdOrEmail(loginIdOrEmail, loginIdOrEmail);
 		if (userOpt.isEmpty()) {
-			System.out.println("ユーザーが見つかりませんでした");
+			logger.warn("認証失敗: ユーザーが見つかりません [{}]", loginIdOrEmail);
 			return false;
 		}
 		Users user = userOpt.get();
-		// パスワード比較結果をログに出す（開発用、運用時はログレベル注意）
 		boolean match = passwordEncoder.matches(rawPassword, user.getPassword());
-		System.out.println("パスワード一致: " + match);
+		logger.debug("パスワード一致: {}", match);
 		return match;
 	}
 
