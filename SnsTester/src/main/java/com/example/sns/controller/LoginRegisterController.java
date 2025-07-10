@@ -94,11 +94,9 @@ public class LoginRegisterController {
 			HttpSession session,
 			HttpServletRequest request,
 			Model model) {
-		// バリデーションチェック
 		if (bindingResult.hasErrors()) {
-			return "register";
+				return "register";
 		}
-		// パスワード一致確認
 		if (!form.getPassword().equals(passwordConfirm)) {
 			model.addAttribute("passwordConfirmError", "パスワードが一致しません");
 			return "register";

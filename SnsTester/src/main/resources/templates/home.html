@@ -3,6 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <title>ホーム画面 - グループワークA</title>
+
+  <!-- CSRFトークンをJavaScriptから取得できるようmetaタグにセット -->
+  <meta name="_csrf" th:content="${_csrf.token}" />
+  <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+  <!-- like.cssを読み込み -->
+  <link rel="stylesheet" th:href="@{/css/like.css}" />
+  <!-- like.jsを読み込み -->
+  <script th:src="@{/js/like.js}"></script>
 </head>
 <body>
 
@@ -29,11 +37,23 @@
       <ul>
         <li th:each="post : ${posts}">
           <article>
-			<p>
-			  <strong th:text="${post.userName}">ユーザー名</strong>
-			  <span style="color: gray;" th:text="'@' + ${post.loginId} + ''">@loginId</span>
-			</p>
+            <p>
+              <strong th:text="${post.userName}">ユーザー名</strong>
+              <span style="color: gray;" th:text="'@' + ${post.loginId}"></span>
+            </p>
             <p th:text="${post.content}">投稿内容</p>
+			<div>
+			  <!-- いいね切り替えボタン（☆ or ★） -->
+			  <button
+			    type="button"
+			    class="like-button"
+			    th:classappend="${post.likedByLoginUser} ? ' liked' : ''"
+			    th:attr="data-post-id=${post.postId}"
+			    th:text="${post.likedByLoginUser} ? '★' : '☆'">
+			  </button>
+			  <!-- いいね数：将来的にリンク化される予定のため、ボタンから分離 -->
+			  <span class="like-count" th:text="${post.likeCount}">0</span>
+			</div>
             <time th:text="${post.relativeTime}">○分前</time>
           </article>
           <hr/>

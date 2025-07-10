@@ -1,0 +1,19 @@
+@charset "UTF-8";
+
+.like-button {
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0 4px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: black;
+}
+
+.like-button.liked {
+  color: gold;  /* いいね済みの★は金色に */
+}
+
+.like-button:hover {
+  color: orange; /* ホバー時のアクセント */
+}

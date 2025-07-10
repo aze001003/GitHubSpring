@@ -50,7 +50,6 @@ public class UsersService {
 			String userName,
 			String rawPassword,
 			String userBio) {
-
 		if (usersRepository.existsByEmail(email)) {
 			throw new IllegalArgumentException("このメールアドレスはすでに登録されています");
 		}
@@ -91,7 +90,6 @@ public class UsersService {
 		logger.debug("パスワード一致: {}", match);
 		return match;
 	}
-
 	/**
 	 * ログインIDまたはメールアドレスによりユーザー情報を取得します。
 	 *

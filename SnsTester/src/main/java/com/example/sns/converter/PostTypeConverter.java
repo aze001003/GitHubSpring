@@ -4,13 +4,13 @@ import jakarta.persistence.Converter;
 
 import com.example.sns.entity.PostType;
 /**
-* PostType列挙型とDBのVARCHAR型の相互変換を行うコンバータークラス。
-* JavaのEnum（大文字）とDBの文字列（小文字）をマッピングし、
-* 永続化時と読み込み時に自動変換される。
-* 
-* @author 岡本
-* @since 2025-07-09
-*/
+ * PostType列挙型とDBのVARCHAR型の相互変換を行うコンバータークラス。
+ * JavaのEnum（大文字）とDBの文字列（小文字）をマッピングし、
+ * 永続化時と読み込み時に自動変換される。
+ * 
+ * @author 岡本
+ * @since 2025-07-09
+ */
 @Converter(autoApply = true)
 public class PostTypeConverter implements AttributeConverter<PostType, String> {
 	/**
