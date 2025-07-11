@@ -107,4 +107,17 @@ public class Users {
 	public void preUpdate() {
 		updatedAt = LocalDateTime.now();
 	}
+	@Override
+	public boolean equals(Object o) {
+	    if (this == o) return true;
+	    if (!(o instanceof Users)) return false;
+	    Users user = (Users) o;
+	    return userId != null && userId.equals(user.userId);
+	}
+
+	@Override
+	public int hashCode() {
+	    return getClass().hashCode();
+	}
+
 }

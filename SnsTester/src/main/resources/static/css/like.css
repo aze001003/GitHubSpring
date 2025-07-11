@@ -1,19 +1,25 @@
 @charset "UTF-8";
-
+/* ----------------------------------------
+ * 1. いいねボタンの基本スタイル
+ * ---------------------------------------- */
 .like-button {
-  border: none;
-  background: none;
-  padding: 0;
-  margin: 0 4px;
-  font-size: 1.2rem;
-  cursor: pointer;
-  color: black;
+  border: none;              /* ボーダー非表示 */
+  background: none;          /* 背景なし（透明） */
+  padding: 0;                /* パディングなし */
+  margin: 0 4px;             /* 左右に少し余白 */
+  font-size: 1.2rem;         /* アイコンサイズ調整 */
+  cursor: pointer;           /* ポインター表示に */
+  color: black;              /* デフォルトは黒 */
 }
-
+/* ----------------------------------------
+ * 2. いいね済み状態（★を金色に）
+ * ---------------------------------------- */
 .like-button.liked {
-  color: gold;  /* いいね済みの★は金色に */
+  color: gold;
 }
-
+/* ----------------------------------------
+ * 3. ホバー時のスタイル（アクセント）
+ * ---------------------------------------- */
 .like-button:hover {
-  color: orange; /* ホバー時のアクセント */
+  color: orange;
 }

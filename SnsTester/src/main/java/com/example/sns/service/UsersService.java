@@ -1,13 +1,20 @@
 package com.example.sns.service;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.sns.dto.UserSuggestDto;
 import com.example.sns.entity.Users;
+import com.example.sns.repository.FollowsRepository;
 import com.example.sns.repository.UsersRepository;
 /**
  * ユーザー登録・認証に関するビジネスロジックを担当するサービスクラス。
@@ -19,6 +26,7 @@ import com.example.sns.repository.UsersRepository;
 @Service
 public class UsersService {
 	private final UsersRepository usersRepository;
+	private final FollowsRepository followsRepository;
 	private final PasswordEncoder passwordEncoder;
 	private static final Logger logger = LoggerFactory.getLogger(UsersService.class);
 	/**
@@ -27,8 +35,12 @@ public class UsersService {
 	 * @param usersRepository Usersエンティティに対するリポジトリ
 	 * @param passwordEncoder パスワードのハッシュ化に使用
 	 */
-	public UsersService(UsersRepository usersRepository,PasswordEncoder passwordEncoder) {
+	public UsersService(
+			UsersRepository usersRepository,
+			FollowsRepository followsRepository,
+			PasswordEncoder passwordEncoder) {
 		this.usersRepository = usersRepository;
+		this.followsRepository = followsRepository;
 		this.passwordEncoder = passwordEncoder;
 	}
 
@@ -100,4 +112,39 @@ public class UsersService {
 		return usersRepository.findByLoginIdOrEmail(loginIdOrEmail, loginIdOrEmail)
 				.orElse(null);
 	}
-}
+	/**
+	 * ユーザー名またはログインIDの部分一致によるユーザー候補を取得します。
+	 * 最大10件まで返します。
+	 *
+	 * @param query 検索文字列
+	 * @return UserSuggestDtoのリスト
+	 */
+	public List<UserSuggestDto> searchUserSuggestions(String query, UUID loginUserId) {
+		List<Users> users = usersRepository.findTop10ByLoginIdContainingIgnoreCaseOrUserNameContainingIgnoreCase(query, query);
+
+		final Set<UUID> followedUserIds;
+		final Set<UUID> followingUserIds;
+		if (loginUserId != null) {
+		followedUserIds = new HashSet<>(followsRepository.findFolloweeIdsByFollowerId(loginUserId));
+		followingUserIds = new HashSet<>(followsRepository.findFollowerIdsByFolloweeId(loginUserId));
+		} else {
+		followedUserIds = new HashSet<>();
+		followingUserIds = new HashSet<>();
+		}
+		return users.stream()
+		.map(user -> {
+		boolean followed = followedUserIds.contains(user.getUserId()); // 自分→相手
+		boolean isSelf = loginUserId != null && loginUserId.equals(user.getUserId());
+		boolean followingLoginUser = followingUserIds.contains(user.getUserId());  // 相手→自分
+		return new UserSuggestDto(
+				user.getUserId(),
+				user.getUserName(),
+				user.getLoginId(),
+				followed,
+				isSelf,
+				followingLoginUser
+			);
+		})
+		.collect(Collectors.toList());
+		}
+	}

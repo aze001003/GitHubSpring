@@ -47,7 +47,6 @@ public class PostsController {
 		model.addAttribute("posts", postDtoList);
 		return "home";
 	}
-	
 	/**
 	 * 新規投稿処理
 	 * 

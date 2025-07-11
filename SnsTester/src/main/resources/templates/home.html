@@ -7,16 +7,35 @@
   <!-- CSRFトークンをJavaScriptから取得できるようmetaタグにセット -->
   <meta name="_csrf" th:content="${_csrf.token}" />
   <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-  <!-- like.cssを読み込み -->
+  <!-- cssを読み込み -->
   <link rel="stylesheet" th:href="@{/css/like.css}" />
-  <!-- like.jsを読み込み -->
-  <script th:src="@{/js/like.js}"></script>
+  <link rel="stylesheet" href="/css/suggest.css">
+  <!-- jsを読み込み -->
+  <script th:src="@{/js/like_btn.js}"></script>
+  <script th:src="@{/js/follow_btn.js}"></script>
+  <script th:src="@{/js/users_suggest.js}"></script>
+  
 </head>
 <body>
 
   <p><a th:href="@{/users/logout}">ログアウト</a></p>
 
   <hr/>
+  
+  <!-- 検索フォーム（画面上部） -->
+   <section>
+     <input
+       type="text"
+       id="user-search-input"
+       placeholder="ユーザー名またはログインIDで検索"
+       autocomplete="off"
+       maxlength="50"
+	   style="width: 600px; height: 30px;"
+     />
+	<ul id="user-suggestions" class="user-suggestions-container">
+       <!-- 予測候補はここに動的挿入 -->
+     </ul>
+   </section>
 
   <!-- 新規投稿フォーム -->
   <section th:if="${user != null}">
@@ -40,6 +59,7 @@
             <p>
               <strong th:text="${post.userName}">ユーザー名</strong>
               <span style="color: gray;" th:text="'@' + ${post.loginId}"></span>
+			  <time th:text="${post.relativeTime}">○分前</time>
             </p>
             <p th:text="${post.content}">投稿内容</p>
 			<div>
@@ -54,7 +74,7 @@
 			  <!-- いいね数：将来的にリンク化される予定のため、ボタンから分離 -->
 			  <span class="like-count" th:text="${post.likeCount}">0</span>
 			</div>
-            <time th:text="${post.relativeTime}">○分前</time>
+            
           </article>
           <hr/>
         </li>

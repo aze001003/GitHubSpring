@@ -1,8 +1,12 @@
 package com.example.sns.repository;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.example.sns.entity.Users;
 /**
@@ -32,4 +36,15 @@ public interface UsersRepository extends JpaRepository<Users, UUID> {
 	 * @return 見つかればUsersをOptionalで返す。存在しなければ空のOptional。
 	 */
 	Optional<Users> findByLoginIdOrEmail(String loginId, String email);
+	/**
+	 * 入力されたキーワードに部分一致するユーザー名またはログインIDを持つユーザー一覧を返す。
+	 * ※ SQLインジェクション対策のため、バインド変数を使用
+	 *
+	 * @param keyword 入力文字列（2文字以上を想定）
+	 * @return 部分一致するユーザー一覧（最大20件などに制限するのも可）
+	 */
+	@Query("SELECT u FROM Users u WHERE u.userName LIKE %:keyword% OR u.loginId LIKE %:keyword%")
+	List<Users> searchByKeyword(@Param("keyword") String keyword);
+	
+	List<Users> findTop10ByLoginIdContainingIgnoreCaseOrUserNameContainingIgnoreCase(String loginId, String userName);
 }

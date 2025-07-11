@@ -28,7 +28,6 @@ public class PostsService {
 	private final PostsRepository postsRepository;
 	private final LikesRepository likesRepository;
 	
-	
 	public PostsService(PostsRepository postsRepository, LikesRepository likesRepository) {
 		this.postsRepository = postsRepository;
 		this.likesRepository = likesRepository;
