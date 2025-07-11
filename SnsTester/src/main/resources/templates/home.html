@@ -8,8 +8,10 @@
   <meta name="_csrf" th:content="${_csrf.token}" />
   <meta name="_csrf_header" th:content="${_csrf.headerName}" />
   <!-- cssを読み込み -->
-  <link rel="stylesheet" th:href="@{/css/like.css}" />
   <link rel="stylesheet" href="/css/suggest.css">
+  <link rel="stylesheet" href="/css/tab_switch.css" />
+  <link rel="stylesheet" href="/css/timeline.css" />
+  <link rel="stylesheet" th:href="@{/css/like.css}" />
   <!-- jsを読み込み -->
   <script th:src="@{/js/like_btn.js}"></script>
   <script th:src="@{/js/follow_btn.js}"></script>
@@ -24,17 +26,19 @@
   
   <!-- 検索フォーム（画面上部） -->
    <section>
-     <input
-       type="text"
-       id="user-search-input"
-       placeholder="ユーザー名またはログインIDで検索"
-       autocomplete="off"
-       maxlength="50"
-	   style="width: 600px; height: 30px;"
-     />
-	<ul id="user-suggestions" class="user-suggestions-container">
-       <!-- 予測候補はここに動的挿入 -->
-     </ul>
+      <div style="position: relative; display: inline-block;">
+	 <input
+	       type="text"
+	       id="user-search-input"
+	       placeholder="ユーザー名またはログインIDで検索"
+	       autocomplete="off"
+	       maxlength="50"
+	       style="width: 400px; height: 30px;"
+	     />
+	 <!-- 予測候補はここに動的挿入 -->
+	 
+	   <ul id="user-suggestions" class="user-suggestions-container"></ul>
+	 </div>
    </section>
 
   <!-- 新規投稿フォーム -->
@@ -49,41 +53,43 @@
 
   <hr/>
 
+  <section class="tab-container">
+    <a th:href="@{/users/home(mode='all')}" 
+       th:classappend="${mode == 'all'} ? ' tab active' : ' tab'">すべての投稿</a>
+    <a th:href="@{/users/home(mode='followed')}" 
+       th:classappend="${mode == 'followed'} ? ' tab active' : ' tab'">フォロー中のみ</a>
+  </section>
   <!-- 投稿一覧 -->
   <section>
-    <h2>投稿一覧</h2>
+    <h2 th:text="${mode == 'followed'} ? 'フォロー中の投稿' : 'すべての投稿'">投稿一覧</h2>
     <div th:if="${posts != null and !posts.isEmpty()}">
-      <ul>
-        <li th:each="post : ${posts}">
-          <article>
-            <p>
-              <strong th:text="${post.userName}">ユーザー名</strong>
-              <span style="color: gray;" th:text="'@' + ${post.loginId}"></span>
-			  <time th:text="${post.relativeTime}">○分前</time>
-            </p>
-            <p th:text="${post.content}">投稿内容</p>
-			<div>
-			  <!-- いいね切り替えボタン（☆ or ★） -->
-			  <button
-			    type="button"
-			    class="like-button"
-			    th:classappend="${post.likedByLoginUser} ? ' liked' : ''"
-			    th:attr="data-post-id=${post.postId}"
-			    th:text="${post.likedByLoginUser} ? '★' : '☆'">
-			  </button>
-			  <!-- いいね数：将来的にリンク化される予定のため、ボタンから分離 -->
-			  <span class="like-count" th:text="${post.likeCount}">0</span>
-			</div>
-            
-          </article>
-          <hr/>
-        </li>
-      </ul>
+      <div class="post-list">
+        <div th:each="post : ${posts}" class="post-card">
+			
+          <div class="post-header">
+            <strong th:text="${post.userName}">ユーザー名</strong>
+            <span class="login-id" th:text="'@' + ${post.loginId}"></span>
+            <span class="relative-time" th:text="${post.relativeTime}">○分前</span>
+          </div>
+		  
+          <div class="post-content" th:text="${post.content}">投稿内容</div>
+          <div class="post-actions">
+            <button
+              type="button"
+              class="like-button"
+              th:classappend="${post.likedByLoginUser} ? ' liked' : ''"
+              th:attr="data-post-id=${post.postId}"
+              th:text="${post.likedByLoginUser} ? '★' : '☆'">
+            </button>
+            <span class="like-count" th:text="${post.likeCount}">0</span>
+          </div>
+        </div>
+      </div>
     </div>
     <div th:if="${posts == null or posts.isEmpty()}">
       <p>投稿がありません。</p>
     </div>
   </section>
-
+  
 </body>
 </html>

@@ -12,6 +12,7 @@ import com.example.sns.dto.PostViewDto;
 import com.example.sns.entity.PostType;
 import com.example.sns.entity.Posts;
 import com.example.sns.entity.Users;
+import com.example.sns.repository.FollowsRepository;
 import com.example.sns.repository.LikesRepository;
 import com.example.sns.repository.PostsRepository;
 import com.example.sns.util.RelativeTimeUtil;
@@ -27,10 +28,16 @@ import com.example.sns.util.RelativeTimeUtil;
 public class PostsService {
 	private final PostsRepository postsRepository;
 	private final LikesRepository likesRepository;
+	private final FollowsRepository followsRepository;
 	
-	public PostsService(PostsRepository postsRepository, LikesRepository likesRepository) {
+	
+	public PostsService(
+			PostsRepository postsRepository,
+			LikesRepository likesRepository,
+			FollowsRepository followsRepository) {
 		this.postsRepository = postsRepository;
 		this.likesRepository = likesRepository;
+		this.followsRepository = followsRepository;
 	}
 	/**
 	 * 通常投稿を作成・保存する。
@@ -78,18 +85,70 @@ public class PostsService {
 		return postsRepository.findAllByOrderByCreatedAtDesc();
 	}
 	/**
-	 * 投稿一覧をDTOで返す（いいね数、ログインユーザーのいいね済み判定含む）
+	 * 指定したユーザーIDリストの投稿を取得し、いいね数や
+	 * ログインユーザーのいいね済み判定を含めてDTOに変換して返す共通メソッド。
+	 * -指定ユーザーの投稿を取得（最新順）
+	 * -投稿IDリストを作成
+	 * -投稿IDごとのいいね数を取得しMapに変換
+	 * -ログインユーザーがいいね済みの投稿IDリストを取得
+	 * - DTOに変換して返却
 	 * 
-	 * @param loginUser ログイン中ユーザー（nullの場合は未ログイン扱い）
-	 * @return DTOリスト
+	 * @param loginUser ログイン中のユーザー（nullの場合は未ログイン扱い）
+	 * @param userIds 投稿対象のユーザーIDリスト
+	 * @return 投稿DTOリスト（作成日時降順）
 	 */
-	public List<PostViewDto> getAllPostsWithLikes(Users loginUser) {
-		List<Posts> posts = getAllPosts();
-		// 投稿IDリストを作成
+	private List<PostViewDto> getPostsByUserIdsWithLikes(Users loginUser, List<UUID> userIds) {
+		if (userIds == null || userIds.isEmpty()) return List.of();
+		List<Posts> posts = postsRepository.findByUser_UserIdInOrderByCreatedAtDesc(userIds);
+		
 		List<UUID> postIds = posts.stream()
 				.map(Posts::getPostId)
 				.collect(Collectors.toList());
-		// countLikesByPostIdsの戻り値をMapに変換
+		
+		Map<UUID, Integer> likeCountMap = getLikeCountMap(postIds);
+		
+		List<UUID> likedPostIds = loginUser == null
+				? List.of()
+				: likesRepository.findPostIdsLikedByUser(loginUser.getUserId());
+		return convertToPostViewDtoList(posts, likeCountMap, likedPostIds);
+	}
+	
+	/**
+	 * 全ユーザーの投稿を取得し、いいね数や
+	 * ログインユーザーのいいね済み判定を含めてDTOに変換して返す。
+	 * -投稿が存在する全ユーザーIDを取得
+	 * -共通処理でDTOリストを取得
+	 * 
+	 * @param loginUser ログイン中のユーザー（nullの場合は未ログイン扱い）
+	 * @return 全投稿のDTOリスト（作成日時降順）
+	 */
+	public List<PostViewDto> getAllPostsWithLikes(Users loginUser) {
+		List<UUID> allUserIds = postsRepository.findAllUserIds();
+		return getPostsByUserIdsWithLikes(loginUser, allUserIds);
+	}
+	/**
+	 * フォロー中ユーザーと自分自身の投稿を取得し、いいね数や
+	 * ログインユーザーのいいね済み判定を含めてDTOに変換して返す。
+	 * -フォロー中ユーザーIDを取得
+	 * -自分自身のIDも追加（自分の投稿も含めるため）
+	 * -共通処理でDTOリストを取得
+	 * 
+	 * @param loginUser ログイン中のユーザー（nullの場合は未ログイン扱い）
+	 * @return フォロー中ユーザー＋自分の投稿DTOリスト（作成日時降順）
+	 */
+	public List<PostViewDto> getFollowedUsersPostsWithLikes(Users loginUser) {
+		if (loginUser == null) return List.of();
+		List<UUID> followeeIds = followsRepository.findFolloweeIdsByFollowerId(loginUser.getUserId());
+		followeeIds.add(loginUser.getUserId());
+		return getPostsByUserIdsWithLikes(loginUser, followeeIds);
+	}
+	/**
+	 * 指定した投稿IDリストに対するいいね数を集計し、投稿IDをキー、いいね数を値としたMapを返す。
+	 * 
+	 * @param postIds 投稿IDのリスト
+	 * @return 投稿IDごとのいいね数マップ
+	 */
+	private Map<UUID, Integer> getLikeCountMap(List<UUID> postIds) {
 		List<Object[]> results = likesRepository.countLikesByPostIds(postIds);
 		Map<UUID, Integer> likeCountMap = new HashMap<>();
 		for (Object[] row : results) {
@@ -97,12 +156,7 @@ public class PostsService {
 			Long count = (Long) row[1];
 			likeCountMap.put(postId, count.intValue());
 		}
-		// ログインユーザーがいいね済みの投稿IDリスト取得
-		var likedPostIds = loginUser == null
-				? List.<UUID>of()
-						: likesRepository.findPostIdsLikedByUser(loginUser.getUserId());
-		// DTO変換は別メソッドに任せる
-		return convertToPostViewDtoList(posts, likeCountMap, likedPostIds);
+		return likeCountMap;
 	}
 	/**
 	 * 投稿エンティティリストをDTOリストに変換するユーティリティメソッド。

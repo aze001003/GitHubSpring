@@ -3,6 +3,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.example.sns.entity.Posts;
@@ -29,4 +30,14 @@ public interface PostsRepository extends JpaRepository<Posts, UUID> {
 	 * @return 投稿一覧（最新順）
 	 */
 	List<Posts> findAllByOrderByCreatedAtDesc();
+	
+	List<Posts> findByUser_UserIdInOrderByCreatedAtDesc(List<UUID> userIds);
+	
+	 /**
+	  * 投稿がある全ユーザーのIDを重複なく取得する。
+	  * 
+	  * @return ユーザーID一覧
+	  */
+	@Query("SELECT DISTINCT p.user.userId FROM Posts p")
+	 List<UUID> findAllUserIds();
 }

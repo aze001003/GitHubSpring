@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.sns.dto.PostViewDto;
@@ -32,19 +33,30 @@ public class PostsController {
 	 * ホーム画面表示（投稿一覧取得＋モデルセット）
 	 * 
 	 * @param loginUserDetails 認証済みユーザー情報
+	 * @param mode 表示モード（"all": 全投稿, "followed": フォロー中ユーザーの投稿）
 	 * @param model Viewへデータを渡すためのモデル
 	 * @return home.htmlテンプレート名
 	 */
 	@GetMapping
 	public String home(
 			@AuthenticationPrincipal UsersDetails loginUserDetails,
+			@RequestParam(name = "mode", required = false, defaultValue = "all") String mode,
 			Model model) {
 		if (loginUserDetails == null) return "redirect:/users/login";
+		
 		Users loginUser = loginUserDetails.getUser();
 		model.addAttribute("user", loginUser);
 		
-		List<PostViewDto> postDtoList = postsService.getAllPostsWithLikes(loginUser);
+		List<PostViewDto> postDtoList;
+		
+		if ("followed".equals(mode)) {
+			postDtoList = postsService.getFollowedUsersPostsWithLikes(loginUser);
+		}else {
+			postDtoList = postsService.getAllPostsWithLikes(loginUser);
+		}
+		
 		model.addAttribute("posts", postDtoList);
+		model.addAttribute("mode", mode);
 		return "home";
 	}
 	/**
