@@ -58,4 +58,8 @@ public interface FollowsRepository extends JpaRepository<Follows, UUID> {
 	 */
 	@Query("SELECT f.follower.userId FROM Follows f WHERE f.followee.userId = :followeeId")
 	List<UUID> findFollowerIdsByFolloweeId(@Param("followeeId") UUID followeeId);
+	
+	int countByFollower_UserId(UUID userId);
+	int countByFollowee_UserId(UUID userId);
+
 }

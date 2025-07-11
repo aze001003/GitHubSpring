@@ -49,7 +49,7 @@ public class UserSuggestRestController {
             return ResponseEntity.badRequest().body("検索語は2文字以上入力してください。");
         }
 
-        UUID loginUserId = userDetails != null ? userDetails.getUserId() : null;
+        UUID loginUserId = userDetails != null ? userDetails.getUser().getUserId() : null;
 
         List<UserSuggestDto> suggestions = usersService.searchUserSuggestions(query.trim(), loginUserId);
         return ResponseEntity.ok(suggestions);

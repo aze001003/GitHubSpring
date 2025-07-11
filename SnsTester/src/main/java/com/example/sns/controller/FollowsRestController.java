@@ -42,6 +42,7 @@ public class FollowsRestController {
 	 */
 	@PostMapping("/{userId}")
 	public ResponseEntity<?> follow(@PathVariable UUID userId, Principal principal) {
+		System.out.println("フォローボタンが押された");
 		Users follower = usersService.findByLoginIdOrEmail(principal.getName());
 		if (follower == null) {
 			return ResponseEntity.status(401).body("ログインユーザーが存在しません");
