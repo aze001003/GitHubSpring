@@ -29,9 +29,11 @@ public class FollowsRestController {
 	private final FollowsService followsService;
 	private final UsersService usersService;
 	
-	public FollowsRestController(FollowsService followsService, UsersService usersService) {
+	public FollowsRestController(
+			FollowsService followsService,
+			UsersService usersService) {
 		this.followsService = followsService;
-		this.usersService = usersService;
+		this.usersService   = usersService;
 	}
 	/**
 	 * 指定したユーザーをログインユーザーがフォローする。

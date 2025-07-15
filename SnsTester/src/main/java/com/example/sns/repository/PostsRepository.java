@@ -40,4 +40,11 @@ public interface PostsRepository extends JpaRepository<Posts, UUID> {
 	  */
 	@Query("SELECT DISTINCT p.user.userId FROM Posts p")
 	 List<UUID> findAllUserIds();
+	/**
+	 * 指定ユーザーの投稿数をカウントする
+	 * 
+	 * @param userId 投稿者ユーザーID
+	 * @return 投稿数
+	 */
+	int countByUser_UserId(UUID userId);
 }

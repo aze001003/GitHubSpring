@@ -13,6 +13,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.sns.dto.PostViewDto;
 import com.example.sns.entity.Users;
 import com.example.sns.repository.FollowsRepository;
+import com.example.sns.repository.LikesRepository;
+import com.example.sns.repository.PostsRepository;
 import com.example.sns.security.UsersDetails;
 import com.example.sns.service.PostsService;
 /**
@@ -27,10 +29,18 @@ import com.example.sns.service.PostsService;
 public class PostsController {
 	private final PostsService postsService;
 	private final FollowsRepository followsRepository;
+	private final LikesRepository likesRepository;
+	private final PostsRepository postsRepository;
 	
-	public PostsController(PostsService postsService, FollowsRepository followsRepository) {
-		this.postsService = postsService;
+	public PostsController (
+			PostsService postsService,
+			FollowsRepository followsRepository,
+			LikesRepository likesRepository,
+			PostsRepository postsRepository) {
+		this.postsService      = postsService;
 		this.followsRepository = followsRepository;
+		this.likesRepository   = likesRepository;
+		this.postsRepository    = postsRepository;
 	}
 	/**
 	 * ホーム画面表示（投稿一覧取得＋モデルセット）
@@ -48,12 +58,16 @@ public class PostsController {
 		if (loginUserDetails == null) return "redirect:/users/login";
 		
 		Users loginUser = loginUserDetails.getUser();
-		int followingCount = followsRepository.countByFollower_UserId(loginUser.getUserId());
-		int followerCount  = followsRepository.countByFollowee_UserId(loginUser.getUserId());
+		int followingCount  = followsRepository.countByFollower_UserId(loginUser.getUserId());
+		int followerCount   = followsRepository.countByFollowee_UserId(loginUser.getUserId());
+		long likedPostCount = likesRepository.countByLikes_UserId(loginUser.getUserId());
+		int postCount       = postsRepository.countByUser_UserId(loginUser.getUserId());
 		
 		model.addAttribute("user", loginUser);
+		model.addAttribute("postCount", postCount);
 		model.addAttribute("followingCount", followingCount);
 		model.addAttribute("followerCount", followerCount);
+		model.addAttribute("likedPostCount", (int)likedPostCount);
 		
 		List<PostViewDto> postDtoList;
 		

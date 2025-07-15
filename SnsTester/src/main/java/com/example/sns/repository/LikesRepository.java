@@ -45,6 +45,13 @@ public interface LikesRepository extends JpaRepository<Likes, UUID> {
 	@Query("SELECT l.post.postId FROM Likes l WHERE l.user.userId = :userId")
 	List<UUID> findPostIdsLikedByUser(@Param("userId") UUID userId);
 	/**
+	 * 指定ユーザーが「いいね」した投稿数を取得する
+	 * @param userId ログインユーザーのID
+	 * @return いいねした投稿の件数
+	 */
+	@Query("SELECT COUNT(l) FROM Likes l WHERE l.user.userId = :userId")
+	long countByLikes_UserId(UUID userId);
+	/**
 	 * 指定投稿のいいね数をカウントする。
 	 * 
 	 * @param postId 投稿ID(UUID)

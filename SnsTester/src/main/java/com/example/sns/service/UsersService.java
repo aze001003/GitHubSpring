@@ -39,9 +39,9 @@ public class UsersService {
 			UsersRepository usersRepository,
 			FollowsRepository followsRepository,
 			PasswordEncoder passwordEncoder) {
-		this.usersRepository = usersRepository;
+		this.usersRepository   = usersRepository;
 		this.followsRepository = followsRepository;
-		this.passwordEncoder = passwordEncoder;
+		this.passwordEncoder   = passwordEncoder;
 	}
 
 	/**

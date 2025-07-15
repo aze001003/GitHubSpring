@@ -35,8 +35,8 @@ public class PostsService {
 			PostsRepository postsRepository,
 			LikesRepository likesRepository,
 			FollowsRepository followsRepository) {
-		this.postsRepository = postsRepository;
-		this.likesRepository = likesRepository;
+		this.postsRepository   = postsRepository;
+		this.likesRepository   = likesRepository;
 		this.followsRepository = followsRepository;
 	}
 	/**

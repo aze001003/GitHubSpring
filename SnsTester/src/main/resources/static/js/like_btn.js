@@ -1,58 +1,60 @@
 /**
  * ファイル名: like_btn.js
  * 作成者: 岡本
- * 作成日: 2025-07-11
- * 概要: いいねボタンの非同期処理を行うJavaScript
- * 		 画面のリロード無しにリアルタイムでユーザーの操作を反映するために作成しました。
+ * 作成日: 2025-07-15
+ * 概要:
+ *   投稿カードはHTMLで描画済みだが、
+ *   いいねボタンはJavaScriptで動的生成し、
+ *   クリックイベントをセットアップする初期化スクリプト。
  */
-document.addEventListener('DOMContentLoaded', () => {
-  // ページ読み込み後に処理を開始
 
-  // いいねボタン（クラス名.like-button）を全て取得してループ処理
-  document.querySelectorAll('.like-button').forEach(button => {
-    // 各ボタンにクリックイベントリスナーを設定
-    button.addEventListener('click', () => {
-      // クリックされたボタンの投稿IDをdata属性から取得
-      const postId = button.getAttribute('data-post-id');
-      // 現在のボタンのテキストが★なら「いいね済み」と判断
-      const isLiked = button.textContent === '★';
-      // ★なら「いいね解除」APIへ、☆なら「いいね追加」APIへ送信するURLを設定
-      const url = isLiked ? '/api/likes/remove' : '/api/likes/add';
+import { setupLikeButton } from './like_api.js';
 
-      // CSRFトークンをmetaタグから取得しヘッダーにセット
-      const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+/**
+ * いいねボタンのDOMを生成する
+ * @param {Object} post 投稿データオブジェクト
+ * @returns {HTMLElement} いいねボタン要素
+ */
+function createLikeButton(post) {
+  const likeButton = document.createElement('button');
+  likeButton.type = 'button';
+  likeButton.className = 'like-button';
+  if (post.likedByLoginUser) likeButton.classList.add('liked');
+  likeButton.dataset.postId = post.postId;
+  likeButton.textContent = post.likedByLoginUser ? '★' : '☆';
+  return likeButton;
+}
 
-      // fetch APIで非同期POSTリクエストを送信
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json', // JSON形式で送信
-          'X-CSRF-TOKEN': csrfToken           // CSRFトークンのセット
-        },
-        body: JSON.stringify({ postId: postId }) // 投稿IDをJSON形式で送信
-      })
-      .then(response => {
-        // 通信結果のレスポンスがOKでなければエラーを投げる
-        if (!response.ok) throw new Error('通信エラー');
-        return response.json(); // レスポンスをJSONとして解析
-      })
-      .then(data => {
-        // レスポンスの liked フラグに応じてボタンのテキストを★または☆に切替
-        button.textContent = data.liked ? '★' : '☆';
-        // liked クラスの付与・削除で見た目を切り替え（色など）
-        button.classList.toggle('liked', data.liked);
+/**
+ * 投稿一覧データに基づき、HTMLの投稿カード内に
+ * いいねボタンを動的生成・挿入し、
+ * イベントをセットアップする。
+ * @param {Array<Object>} posts 投稿データ配列
+ */
+export function initializeLikeButtons(posts) {
+  posts.forEach(post => {
+    // 投稿カードのDOMをdata-post-id属性から取得
+    const postCard = document.querySelector(`.post-card[data-post-id="${post.postId}"]`);
+    if (!postCard) return;
 
-        // いいね数表示用の要素(.like-count)を取得し、最新のいいね数に更新
-        const likeCountSpan = button.parentElement.querySelector('.like-count');
-        if (likeCountSpan) {
-          likeCountSpan.textContent = data.likeCount;
-        }
-      })
-      .catch(error => {
-        // 通信失敗時のエラーハンドリング。アラート表示とコンソールログ出力
-        alert('いいね処理に失敗しました');
-        console.error(error);
-      });
-    });
+    const actions = postCard.querySelector('.post-actions');
+    if (!actions) return;
+
+    // 既存のいいねボタンがあれば削除（念のため）
+    const oldBtn = actions.querySelector('.like-button');
+    if (oldBtn) oldBtn.remove();
+
+    // いいねボタンを作成して差し込む
+    const likeBtn = createLikeButton(post);
+    actions.prepend(likeBtn);
+
+    // クリックイベントを設定
+    setupLikeButton(likeBtn);
   });
+}
+
+// ページ読み込み後の例（postsデータの取得方法に応じて実装を変えてください）
+document.addEventListener('DOMContentLoaded', () => {
+  // 例：グローバル変数などでpostsデータがある場合
+  initializeLikeButtons(window.postsData);
 });
