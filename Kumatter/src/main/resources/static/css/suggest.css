@@ -61,3 +61,9 @@
 .follow-btn {
   margin-left: 10px;         /* 左余白 */
 }
+/* ----------------------------------------
+ * 7. 空の時に非表示
+ * ---------------------------------------- */
+.user-suggestions-container:empty {
+    display: none;
+}

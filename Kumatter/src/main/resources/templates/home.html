@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8" />
+	<title>ホーム画面</title>
+
+	<!-- CSRFトークンをJavaScriptから取得できるようmetaタグにセット -->
+	<meta name="_csrf" th:content="${_csrf.token}" />
+	<meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
+	<!-- cssを読み込み --> 
+	<link rel="stylesheet" th:href="@{/css/home.css}" />
+	<link rel="stylesheet" href="/css/suggest.css">
+	<link rel="stylesheet" th:href="@{/css/like.css}" />
+
+	<!-- jsを読み込み -->
+	<script type="module" th:src="@{/js/users_suggest.js}"></script>
+	<script type="module" th:src="@{/js/like_btn.js}"></script>
+	<script type="module" th:src="@{/js/follow_btn.js}"></script>
+	
+	<script th:inline="javascript">
+	/*<![CDATA[*/
+	window.postsData = /*[[${posts}]]*/ [];
+	/*]]>*/
+	</script>
+</head>
+<body class="home-body">
+	<!-- ヘッダー -->
+	<header class="home-header">
+		<div class="header-inner">
+		<div class="header-title">🧸 ホーム</div>
+		<div>
+			<strong th:text="${user.userName}">ユーザー名</strong>
+			<span th:text="'@' + ${user.loginId}">@loginId</span>　
+			<span th:text="${postCount} + ' 投稿 '">5 投稿</span>
+			<span th:text="${followingCount} + ' フォロー中 '">3 フォロー中</span>　
+			<span th:text="${followerCount} + ' フォロワー '">3 フォロワー</span>
+			<span th:text="${likedPostCount} + ' いいね'">0 いいね</span>
+		</div>
+		<div class="header-welcome">
+			ようこそ、<span th:text="${user.userName}">ユーザー名</span> さん
+			<p><a th:href="@{/users/logout}">ログアウト</a></p>
+		</div>
+		</div>
+	</header>
+	
+	<!-- 🔍 ユーザー検索フォーム -->
+	<section class="search-section">
+		<div class="relative">
+			<input 
+				type="text" 
+				id="user-search-input" 
+				class="search-input" 
+				placeholder="ユーザー名またはログインIDで検索" 
+				autocomplete="off" 
+				maxlength="50" 
+			/>
+			<!-- ユーザー補完候補の表示エリア（JSで挿入） -->
+			<ul id="user-suggestions" class="user-suggestions-container"></ul>
+		</div>
+	</section>
+	
+	<!-- 📝 新規投稿フォーム -->
+	<section class="post-form-container">
+		<form th:action="@{/users/home/posts/create}" method="post">
+			<!-- CSRFトークン -->
+			<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+			
+			<textarea name="content" rows="4" maxlength="140" placeholder="いまどうしてるクマ？" required class="post-textarea"></textarea>
+				  
+			<div class="post-form-buttons">
+				<button type="button" class="post-button-upload">画像をアップロード</button>
+				<button type="submit" class="post-button-submit">投稿するクマ 🐾</button>
+			</div>
+		</form>
+	</section>
+			
+	<!-- 🔁 投稿表示切り替えタブ -->
+	<section class="tab-container">
+		<a th:href="@{/users/home(mode='followed')}" th:classappend="${mode == 'followed'} ? 'tab-active' : 'tab-inactive'" class="tab-button">
+		  🐾 フォロー中
+		</a>
+		<a th:href="@{/users/home(mode='all')}" th:classappend="${mode == 'all'} ? 'tab-active' : 'tab-inactive'" class="tab-button">
+		  🌐 全体
+		</a>
+	</section>
+	
+	<!-- 投稿一覧 -->
+	<section class="post-list-section">
+		<h2 class="post-list-title"
+			th:text="${mode == 'followed'} ? 'フォロー中の投稿' : 'すべての投稿'">投稿一覧</h2>
+		<!-- 投稿がある場合 -->
+		<div th:if="${posts != null and !posts.isEmpty()}" class="post-list">
+			<div th:each="post : ${posts}" class="post-card" th:attr="data-post-id=${post.postId}">
+
+				<!-- 投稿ヘッダー -->
+				<div class="post-header">
+					<strong th:text="${post.userName}">ユーザー名</strong>
+					<span class="login-id" th:text="'@' + ${post.loginId}">@loginId</span>
+					<span class="relative-time" th:text="${post.relativeTime}">○分前</span>
+				</div>
+
+				<!-- 投稿本文 -->
+				<div class="post-content" th:text="${post.content}">投稿内容</div>
+
+				<!-- 投稿アクション -->
+				<div class="post-actions">
+					<!-- JavaScriptでいいねボタンを挿入する場所 -->
+					<span class="like-count" th:text="${post.likeCount}">0</span>
+				</div>
+			</div>
+		</div>
+		
+		<!-- 投稿がない場合 -->
+		<div th:if="${posts == null or posts.isEmpty()}" class="no-post-message">
+			<p>投稿がありません。</p>
+		</div>
+	</section>
+</body>
+</html>

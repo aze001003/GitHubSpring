@@ -1,0 +1,145 @@
+@charset "UTF-8";
+/**
+ * ファイル名: login.css
+ * 作成者: 畦地
+ * 作成日: 2025-07-15
+ * 概要: ログイン画面のスタイル定義
+ */
+
+/* ----------------------------------------
+ * 全体レイアウト（背景・中央寄せ・フォント）
+ * ---------------------------------------- */
+body {
+    background: linear-gradient(to right, #f5f5dc, #e6ccb2); /* ベージュ〜薄ブラウンのグラデ背景 */
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif; /* Tailwind標準フォント群 */
+    margin: 0;
+    height: 100vh;
+
+    display: flex;                 /* Flexで中央寄せ */
+    justify-content: center;       /* 横方向中央 */
+    align-items: center;           /* 縦方向中央 */
+}
+
+/* ----------------------------------------
+ * ログインコンテナボックス（白背景、角丸、影あり）
+ * ---------------------------------------- */
+.container {
+    background-color: #ffffff;     /* 白背景 */
+    border-radius: 2rem;           /* 大きめの角丸 */
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 
+                0 4px 6px -4px rgba(0,0,0,0.1); /* 柔らかい影 */
+    padding: 2.5rem;               /* 全方向40pxの内側余白 */
+    width: 100%;
+    max-width: 28rem;              /* 最大幅: 448px */
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* ----------------------------------------
+ * クマのアイコン（中央表示、アニメーション）
+ * ---------------------------------------- */
+.icon {
+    font-size: 3rem;               /* 大きめの絵文字 */
+    margin-bottom: 1rem;          /* 下余白 */
+    animation: bounce 1s infinite; /* 上下にふわふわ動く */
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }   /* 開始と終了位置 */
+    50% { transform: translateY(-8px); }     /* 中央で上に少し移動 */
+}
+
+/* ----------------------------------------
+ * ログインタイトル（見出し）
+ * ---------------------------------------- */
+.title {
+    font-size: 1.5rem;             /* 標準より大きめ */
+    font-weight: 700;             /* 太字 */
+    color: #78350f;               /* 濃い黄土色 */
+    margin-bottom: 1.5rem;        /* 下余白 */
+}
+
+/* ----------------------------------------
+ * フォーム内要素の垂直間隔
+ * ---------------------------------------- */
+form > * + * {
+    margin-top: 1rem;             /* 各要素の間隔：16px */
+}
+
+/* ----------------------------------------
+ * 入力フィールド（共通：テキスト／パスワード）
+ * ---------------------------------------- */
+input[type="text"],
+input[type="password"] {
+    width: 100%;                      /* 横幅いっぱい */
+    padding: 0.5rem 1rem;             /* 上下8px、左右16pxの余白 */
+    border: 1px solid #fde68a;        /* 淡い黄色のボーダー */
+    border-radius: 0.75rem;           /* 角丸（12px） */
+    background-color: #fef9c3;        /* 淡いクリーム色背景 */
+    font-size: 1rem;                  /* 通常の文字サイズ */
+    color: #78350f;                   /* 文字色も濃い黄土色系 */
+    box-sizing: border-box;
+    outline: none;
+    transition: box-shadow 0.2s, border-color 0.2s; /* フォーカス時のアニメーション */
+}
+
+/* フォーカス時のハイライト表示 */
+input[type="text"]:focus,
+input[type="password"]:focus {
+    border-color: #facc15;            /* より濃い黄色に変化 */
+    box-shadow: 0 0 0 3px #facc15;    /* 周囲にリング風の影 */
+}
+
+/* ----------------------------------------
+ * メッセージ表示（ログイン失敗・成功）
+ * ---------------------------------------- */
+.error-message {
+    color: #ef4444;         /* 鮮やかな赤色（エラー） */
+    font-size: 0.875rem;     /* 少し小さめの文字サイズ */
+}
+
+.success-message {
+    color: #22c55e;          /* 鮮やかな緑色（成功） */
+    font-size: 0.875rem;
+}
+
+/* ----------------------------------------
+ * ログインボタン
+ * ---------------------------------------- */
+button[type="submit"] {
+    width: 100%;
+    background-color: #ca8a04;       /* 濃い黄色（蜂蜜っぽい） */
+    color: white;
+    font-weight: 600;
+    padding: 0.5rem;                 /* 上下8px */
+    font-size: 1rem;
+    border-radius: 0.75rem;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+    border: none;
+}
+
+/* ホバー時の色変化 */
+button[type="submit"]:hover {
+    background-color: #a16207;      /* より濃い茶系の黄色 */
+}
+
+/* ----------------------------------------
+ * 登録リンク（フッター部分）
+ * ---------------------------------------- */
+.footer-text {
+    font-size: 0.875rem;
+    color: #4b5563;                  /* グレー系文字色 */
+    margin-top: 1rem;
+}
+
+.footer-text a {
+    color: #78350f;                  /* 黄土色のリンク */
+    text-decoration: none;
+    transition: text-decoration 0.2s;
+}
+
+.footer-text a:hover {
+    text-decoration: underline;     /* ホバー時に下線追加 */
+}

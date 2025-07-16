@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8" />
+	<title>くまさん新規登録</title>
+	<!-- register.cssを読み込み -->
+	<link rel="stylesheet" th:href="@{/css/register.css}" />
+</head>
+<body>
+	<div class="container">
+		<div class="icon">🍯</div>
+		<h1 class="title">新規登録するクマ〜</h1>
+		
+		<!-- 共通エラーメッセージ -->
+		<div th:if="${errorMessage}" style="color: red;">
+			<p th:text="${errorMessage}"></p>
+		</div>
+		
+		<form th:action="@{/users/register}" th:object="${registerRequest}" method="post">
+			<!-- ✅CSRFトークン -->
+			<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+			
+			<!-- メールアドレス -->
+			<input type="email" id="email" th:field="*{email}" placeholder="メールアドレス" required class="input"/>
+			<div th:if="${#fields.hasErrors('email')}" th:errors="*{email}"  class="error-message"></div>
+			
+			<!-- ユーザー名 -->
+			<input type="text" id="userName" th:field="*{userName}" placeholder="ユーザー名" required class="input"/>
+			<div th:if="${#fields.hasErrors('userName')}" th:errors="*{userName}"  class="error-message"></div>
+			
+			<!-- パスワード -->
+			<input type="password" id="password" th:field="*{password}" required autocomplete="off" placeholder="パスワード" class="input"/>
+			<div th:if="${#fields.hasErrors('password')}" th:errors="*{password}"  class="error-message"></div>
+			
+			<!-- パスワード確認 -->
+			<input type="password" id="passwordConfirm" name="passwordConfirm" required autocomplete="off" placeholder="パスワード（確認）" class="input"/>
+			<div th:if="${passwordConfirmError != null}" th:text="${passwordConfirmError}"  class="error-message"></div>
+			
+			<!-- 登録ボタン -->
+			<button type="submit" class="button">🐻 登録するクマ！</button>
+		</form>
+
+		<!-- ログイン画面への案内文 -->
+		<p  class="footer-text">すでにアカウントをお持ちの方は <a th:href="@{/users/login}">ログイン画面</a> へ</p>
+	</div>
+</body>
+</html>

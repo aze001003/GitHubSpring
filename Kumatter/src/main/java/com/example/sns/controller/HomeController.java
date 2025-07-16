@@ -26,13 +26,13 @@ import com.example.sns.service.PostsService;
  */
 @Controller
 @RequestMapping("/users/home")
-public class PostsController {
+public class HomeController {
 	private final PostsService postsService;
 	private final FollowsRepository followsRepository;
 	private final LikesRepository likesRepository;
 	private final PostsRepository postsRepository;
 	
-	public PostsController (
+	public HomeController (
 			PostsService postsService,
 			FollowsRepository followsRepository,
 			LikesRepository likesRepository,

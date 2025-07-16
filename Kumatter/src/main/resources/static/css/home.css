@@ -1,0 +1,284 @@
+@charset "UTF-8";
+/**
+ * ファイル名: home.css
+ * 作成者: 畦地
+ * 作成日: 2025-07-15
+ * 概要: ホーム画面のスタイル
+ */
+
+/* ----------------------------------------
+ * 1. 全体背景とレイアウト
+ * ---------------------------------------- */
+.home-body {
+  background-color: #fefce8;  /* yellow-50：全体背景色 */
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+               "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif; /* 共通フォント */
+  min-height: 100vh;         /* 高さ全体 */
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
+/* ----------------------------------------
+ * 2. ヘッダーエリア
+ * ---------------------------------------- */
+.home-header {
+  background-color: #fef3c7;  /* yellow-100：ヘッダー背景色 */
+  padding: 1rem 0;           /* 上下パディング */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* 影 */
+}
+
+.header-inner {
+  max-width: 48rem;           /* ヘッダー最大幅 */
+  margin: 0 auto;             /* 中央寄せ */
+  padding: 0 1rem;            /* 左右余白 */
+  display: flex;
+  justify-content: space-between; /* 両端寄せ */
+  align-items: center;
+}
+
+.header-title {
+  font-size: 1.25rem;         /* 見出しサイズ */
+  font-weight: bold;
+  color: #78350f;             /* yellow-900 */
+}
+
+.header-welcome {
+  font-size: 0.875rem;
+  color: #4b5563;             /* gray-600 */
+}
+
+/* ----------------------------------------
+ * 3. ユーザー検索フォーム
+ * ---------------------------------------- */
+.search-section {
+  max-width: 48rem;
+  margin: 1rem auto 0 auto;   /* 上マージンのみ */
+  padding: 0 1rem;
+  position: relative;
+}
+
+#user-search-input {
+  width: 100%;                /* フル幅 */
+  padding: 0.75rem;           /* 内側余白 */
+  border: 1px solid #fbbf24;  /* yellow-400 枠線 */
+  border-radius: 1rem;        /* 丸み */
+  background-color: rgb(255, 255, 255);
+  outline: none;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+#user-search-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #f59e0b; /* yellow-500 外枠 */
+  border-color: #f59e0b;
+}
+
+.user-suggestions-container {
+  position: absolute;
+  z-index: 10;
+  width: 100%;
+  margin-top: 0.25rem;        /* 間隔 */
+  background-color: white;
+  border: 1px solid #fde68a;  /* yellow-300 */
+  border-radius: 1rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  list-style: none;
+  padding: 0;
+  max-height: 300px;
+  overflow-y: auto;           /* スクロール */
+}
+
+/* ----------------------------------------
+ * 4. 新規投稿フォーム
+ * ---------------------------------------- */
+.post-form-section {
+  max-width: 48rem;
+  margin: 1.5rem auto 0 auto;
+  padding: 0 1rem;
+}
+
+.post-form-container {
+  max-width: 48rem;
+  margin: 1.5rem auto 0 auto;
+  background-color: white;
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.post-textarea {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid #fcd34d;      /* yellow-300 */
+  border-radius: 1rem;
+  background-color: rgb(254, 255, 223);      /* yellow-50 */
+  resize: none;
+  font-size: 1rem;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.post-textarea:focus {
+  outline: none;
+  border-color: #fbbf24;         /* yellow-400 */
+  box-shadow: 0 0 0 3px #fbbf24;
+}
+
+.error-text {
+  color: #ef4444;                 /* red-500 */
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.post-form-buttons {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;                     /* ボタン間の隙間 */
+}
+
+.post-button-upload {
+  padding: 0.5rem 1rem;
+  background-color: #fde68a;      /* yellow-200 */
+  color: #78350f;                 /* yellow-900 */
+  border-radius: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.post-button-upload:hover {
+  background-color: #fcd34d;      /* yellow-300 */
+}
+
+.post-button-submit {
+  padding: 0.5rem 1rem;
+  background-color: #fbbf24;      /* yellow-500 */
+  color: white;
+  border-radius: 1rem;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.post-button-submit:hover {
+  background-color: #ca8a04;      /* yellow-600 */
+}
+
+/* ----------------------------------------
+ * 5. 投稿表示切替タブ
+ * ---------------------------------------- */
+.tab-container {
+  max-width: 48rem;
+  margin: 1.5rem auto 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.tab-button {
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;          /* fully rounded */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+  color: #78350f;                 /* yellow-800 */
+  background-color: #fef3c7;      /* yellow-100 */
+}
+
+.tab-button:hover {
+  background-color: #fcd34d;      /* yellow-300 */
+}
+
+.tab-active {
+  background-color: #fbbf24;      /* yellow-500 */
+  color: white;
+  pointer-events: none;
+}
+
+/* ----------------------------------------
+ * 6. 投稿一覧セクション
+ * ---------------------------------------- */
+.post-list-section {
+  max-width: 48rem;
+  margin: 1.5rem auto 0 auto;
+  padding: 0 1rem;
+}
+
+.post-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;                      /* 投稿間の隙間 */
+}
+
+.post-card {
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  padding: 1rem;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.post-header a {
+  font-weight: bold;
+  color: #78350f;                 /* yellow-800 */
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.post-header a:hover {
+  text-decoration: underline;
+}
+
+.login-id {
+  color: #6b7280;                 /* gray-500 */
+  font-size: 0.875rem;
+}
+
+.relative-time {
+  font-size: 0.875rem;
+  color: #9ca3af;                 /* gray-400 */
+}
+
+.post-content {
+  margin-top: 0.5rem;
+  color: #374151;                 /* gray-800 */
+  font-size: 1rem;
+  white-space: pre-wrap;          /* 改行保持 */
+}
+
+.post-actions {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0rem;
+}
+
+.like-count {
+  font-size: 0.875rem;
+  color: #6b7280;                 /* gray-600 */
+  margin-left: 0; /* もし余白あればここで削除 */
+}
+
+/* ----------------------------------------
+ * 7. 投稿なし表示メッセージ
+ * ---------------------------------------- */
+.no-post-message {
+  text-align: center;
+  color: #6b7280;                 /* gray-500 */
+  margin-top: 2.5rem;
+  font-size: 1rem;
+}
