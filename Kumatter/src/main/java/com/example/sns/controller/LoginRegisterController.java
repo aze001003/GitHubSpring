@@ -100,7 +100,7 @@ public class LoginRegisterController {
 		if (!form.getPassword().equals(passwordConfirm)) {
 			model.addAttribute("passwordConfirmError", "パスワードが一致しません");
 			return "register";
-}
+		}
 		try {
 			String loginId = LoginIdGeneratUtil.generateLoginIdFromEmail(form.getEmail());
 	        Users user = usersService.registerUser(

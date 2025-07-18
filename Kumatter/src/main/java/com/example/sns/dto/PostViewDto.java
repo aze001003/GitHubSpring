@@ -25,6 +25,8 @@ public class PostViewDto {
 	private String content;
 	/** 投稿からの経過時間を表す相対時刻文字列（例：「5分前」） */
 	private String relativeTime;
+	/** 投稿者のユーザーID（プロフィールページへのリンク用） */
+	private UUID userId;
 	/** 投稿者のユーザー名 */
 	private String userName;
 	/** 投稿者のログインID（画面表示時は@を付けて表示） */

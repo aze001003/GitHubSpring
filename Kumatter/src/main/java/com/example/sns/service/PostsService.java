@@ -59,61 +59,6 @@ public class PostsService {
 		return postsRepository.save(post);
 	}
 	/**
-	 * 指定したユーザーの投稿一覧を取得する（最新順）。
-	 *
-	 * @param user ユーザー
-	 * @return 投稿一覧
-	 */
-	public List<Posts> getPostsByUser(Users user) {
-		return postsRepository.findByUserOrderByCreatedAtDesc(user);
-	}
-	/**
-	 * 投稿IDで投稿を1件取得する。
-	 *
-	 * @param postId 投稿ID
-	 * @return 該当投稿（存在しない場合はnull）
-	 */
-	public Posts findById(UUID postId) {
-		return postsRepository.findById(postId).orElse(null);
-	}
-	/**
-	 * 全ユーザーの投稿一覧を取得する（最新順）。
-	 * 
-	 * @return 全投稿一覧
-	 */
-	public List<Posts> getAllPosts() {
-		return postsRepository.findAllByOrderByCreatedAtDesc();
-	}
-	/**
-	 * 指定したユーザーIDリストの投稿を取得し、いいね数や
-	 * ログインユーザーのいいね済み判定を含めてDTOに変換して返す共通メソッド。
-	 * -指定ユーザーの投稿を取得（最新順）
-	 * -投稿IDリストを作成
-	 * -投稿IDごとのいいね数を取得しMapに変換
-	 * -ログインユーザーがいいね済みの投稿IDリストを取得
-	 * - DTOに変換して返却
-	 * 
-	 * @param loginUser ログイン中のユーザー（nullの場合は未ログイン扱い）
-	 * @param userIds 投稿対象のユーザーIDリスト
-	 * @return 投稿DTOリスト（作成日時降順）
-	 */
-	private List<PostViewDto> getPostsByUserIdsWithLikes(Users loginUser, List<UUID> userIds) {
-		if (userIds == null || userIds.isEmpty()) return List.of();
-		List<Posts> posts = postsRepository.findByUser_UserIdInOrderByCreatedAtDesc(userIds);
-		
-		List<UUID> postIds = posts.stream()
-				.map(Posts::getPostId)
-				.collect(Collectors.toList());
-		
-		Map<UUID, Integer> likeCountMap = getLikeCountMap(postIds);
-		
-		List<UUID> likedPostIds = loginUser == null
-				? List.of()
-				: likesRepository.findPostIdsLikedByUser(loginUser.getUserId());
-		return convertToPostViewDtoList(posts, likeCountMap, likedPostIds);
-	}
-	
-	/**
 	 * 全ユーザーの投稿を取得し、いいね数や
 	 * ログインユーザーのいいね済み判定を含めてDTOに変換して返す。
 	 * -投稿が存在する全ユーザーIDを取得
@@ -143,6 +88,27 @@ public class PostsService {
 		return getPostsByUserIdsWithLikes(loginUser, followeeIds);
 	}
 	/**
+	 * 指定したユーザーの投稿一覧をDTO付きで取得する（いいね情報含む）
+	 *
+	 * @param loginUser ログイン中のユーザー（いいね済み判定に使用）
+	 * @param user 表示対象ユーザー
+	 * @return 投稿DTOリスト（作成日時降順）
+	 */
+	public List<PostViewDto> getPostsByUserWithLikes(Users loginUser, Users user) {
+		if (user == null || loginUser == null) return List.of();
+		List<Posts> posts = postsRepository.findByUserOrderByCreatedAtDesc(user);
+		List<UUID> postIds = posts.stream()
+				.map(Posts::getPostId)
+				.collect(Collectors.toList());
+		Map<UUID, Integer> likeCountMap = getLikeCountMap(postIds);
+		List<UUID> likedPostIds = likesRepository.findPostIdsLikedByUser(loginUser.getUserId());
+
+		return convertToPostViewDtoList(posts, likeCountMap, likedPostIds);
+	}
+	
+	//-- 以下privateメソッド --//
+	
+	/**
 	 * 指定した投稿IDリストに対するいいね数を集計し、投稿IDをキー、いいね数を値としたMapを返す。
 	 * 
 	 * @param postIds 投稿IDのリスト
@@ -157,6 +123,36 @@ public class PostsService {
 			likeCountMap.put(postId, count.intValue());
 		}
 		return likeCountMap;
+	}
+	/**
+	 * 指定したユーザーIDリストの投稿を取得し、いいね数や
+	 * ログインユーザーのいいね済み判定を含めてDTOに変換して返す共通メソッド。
+	 * -指定ユーザーの投稿を取得（最新順）
+	 * -投稿IDリストを作成
+	 * -投稿IDごとのいいね数を取得しMapに変換
+	 * -ログインユーザーがいいね済みの投稿IDリストを取得
+	 * - DTOに変換して返却
+	 * 
+	 * @param loginUser ログイン中のユーザー
+	 * @param userIds 投稿対象のユーザーIDリスト
+	 * @return 投稿DTOリスト（作成日時降順）
+	 */
+	private List<PostViewDto> getPostsByUserIdsWithLikes(Users loginUser, List<UUID> userIds) {
+		
+		if (loginUser == null) throw new IllegalArgumentException("ログインユーザーが必要です");
+
+		List<Posts> posts = postsRepository.findByUser_UserIdInOrderByCreatedAtDesc(userIds);
+		
+		List<UUID> postIds = posts.stream()
+				.map(Posts::getPostId)
+				.collect(Collectors.toList());
+		
+		Map<UUID, Integer> likeCountMap = getLikeCountMap(postIds);
+		
+		List<UUID> likedPostIds = loginUser == null
+				? List.of()
+				: likesRepository.findPostIdsLikedByUser(loginUser.getUserId());
+		return convertToPostViewDtoList(posts, likeCountMap, likedPostIds);
 	}
 	/**
 	 * 投稿エンティティリストをDTOリストに変換するユーティリティメソッド。
@@ -174,6 +170,7 @@ public class PostsService {
 						post.getPostId(),
 						post.getContent(),
 						RelativeTimeUtil.toRelativeTime(post.getCreatedAt()),
+						post.getUser().getUserId(),
 						post.getUser().getUserName(),
 						post.getUser().getLoginId(),
 						likeCountMap.getOrDefault(post.getPostId(), 0),

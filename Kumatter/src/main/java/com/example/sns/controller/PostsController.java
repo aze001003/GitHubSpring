@@ -26,21 +26,15 @@ import com.example.sns.service.PostsService;
  */
 @Controller
 @RequestMapping("/users/home")
-public class HomeController {
+public class PostsController {
 	private final PostsService postsService;
-	private final FollowsRepository followsRepository;
-	private final LikesRepository likesRepository;
-	private final PostsRepository postsRepository;
 	
-	public HomeController (
+	public PostsController (
 			PostsService postsService,
 			FollowsRepository followsRepository,
 			LikesRepository likesRepository,
 			PostsRepository postsRepository) {
 		this.postsService      = postsService;
-		this.followsRepository = followsRepository;
-		this.likesRepository   = likesRepository;
-		this.postsRepository    = postsRepository;
 	}
 	/**
 	 * ホーム画面表示（投稿一覧取得＋モデルセット）
@@ -58,17 +52,6 @@ public class HomeController {
 		if (loginUserDetails == null) return "redirect:/users/login";
 		
 		Users loginUser = loginUserDetails.getUser();
-		int followingCount  = followsRepository.countByFollower_UserId(loginUser.getUserId());
-		int followerCount   = followsRepository.countByFollowee_UserId(loginUser.getUserId());
-		long likedPostCount = likesRepository.countByLikes_UserId(loginUser.getUserId());
-		int postCount       = postsRepository.countByUser_UserId(loginUser.getUserId());
-		
-		model.addAttribute("user", loginUser);
-		model.addAttribute("postCount", postCount);
-		model.addAttribute("followingCount", followingCount);
-		model.addAttribute("followerCount", followerCount);
-		model.addAttribute("likedPostCount", (int)likedPostCount);
-		
 		List<PostViewDto> postDtoList;
 		
 		if ("followed".equals(mode)) {
@@ -76,7 +59,7 @@ public class HomeController {
 		}else {
 			postDtoList = postsService.getAllPostsWithLikes(loginUser);
 		}
-		
+		model.addAttribute("user", loginUser);
 		model.addAttribute("posts", postDtoList);
 		model.addAttribute("mode", mode);
 		return "home";

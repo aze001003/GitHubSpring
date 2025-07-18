@@ -12,9 +12,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.sns.dto.UserProfileDto;
 import com.example.sns.dto.UserSuggestDto;
 import com.example.sns.entity.Users;
 import com.example.sns.repository.FollowsRepository;
+import com.example.sns.repository.LikesRepository;
+import com.example.sns.repository.PostsRepository;
 import com.example.sns.repository.UsersRepository;
 /**
  * ユーザー登録・認証に関するビジネスロジックを担当するサービスクラス。
@@ -27,6 +30,8 @@ import com.example.sns.repository.UsersRepository;
 public class UsersService {
 	private final UsersRepository usersRepository;
 	private final FollowsRepository followsRepository;
+	private final LikesRepository likesRepository;
+	private final PostsRepository postsRepository;
 	private final PasswordEncoder passwordEncoder;
 	private static final Logger logger = LoggerFactory.getLogger(UsersService.class);
 	/**
@@ -38,10 +43,14 @@ public class UsersService {
 	public UsersService(
 			UsersRepository usersRepository,
 			FollowsRepository followsRepository,
+			LikesRepository likesRepository,
+			PostsRepository postsRepository,
 			PasswordEncoder passwordEncoder) {
 		this.usersRepository   = usersRepository;
 		this.followsRepository = followsRepository;
+		this.likesRepository   = likesRepository;
 		this.passwordEncoder   = passwordEncoder;
+		this.postsRepository    = postsRepository;
 	}
 
 	/**
@@ -146,5 +155,37 @@ public class UsersService {
 			);
 		})
 		.collect(Collectors.toList());
-		}
 	}
+	
+	public Users findByUserId(UUID userId) {
+		return usersRepository.findById(userId).orElse(null);
+	}
+	/**
+	 * 指定されたユーザーIDに対応するプロフィール情報を集約してDTOで返す。
+	 * 
+	 * - ユーザー基本情報（名前、自己紹介など）
+	 * - 投稿数、フォロー数、フォロワー数、いいね数 を含む
+	 * 
+	 * @param userId プロフィール対象のユーザーID
+	 * @return プロフィールDTO（UserProfileDto）／ユーザーが存在しない場合は null
+	 */
+	public UserProfileDto getUserProfileDto(UUID userId) {
+		Users user = usersRepository.findById(userId).orElse(null);
+		if (user == null) return null;
+		
+		int postCount = postsRepository.countByUser_UserId(userId); // 任意：postsRepositoryでも可
+		int followingCount = followsRepository.countByFollower_UserId(userId);
+		int followerCount = followsRepository.countByFollowee_UserId(userId);
+		int likedPostCount =(int)likesRepository.countByLikes_UserId(userId);
+		
+		return new UserProfileDto(
+				user.getUserId(),
+				user.getUserName(),
+				user.getUserBio(),
+				postCount,
+				followingCount,
+				followerCount,
+				likedPostCount
+			);
+	}
+}

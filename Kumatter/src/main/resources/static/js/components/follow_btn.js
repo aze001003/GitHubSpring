@@ -1,10 +1,12 @@
 /**
  * ファイル名: follow_btn.js
- * 作成者: 岡本
- * 作成日: 2025-07-11
- * 概要: フォローボタンのDOM生成とフォローAPI呼び出しの共通部品
+ * 概要:
+ * - フォローボタンのDOM生成とフォローAPI呼び出しの共通部品
+ * 
+ * @author 岡本
+ * @since 2025-07-11
  */
-import { toggleFollow } from './follow_api.js';
+import { toggleFollow } from '../api/follow_api.js';
 
 /**
  * フォローボタンを作成する
